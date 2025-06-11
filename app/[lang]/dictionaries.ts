@@ -1,4 +1,5 @@
 import 'server-only';
+import { Lang } from '@/app/types/lang';
 
 const dictionaries = {
   en: () =>
@@ -7,5 +8,5 @@ const dictionaries = {
     import('@/app/dictionaries/fa.json').then((module) => module.default),
 };
 
-export const getDictionary = async (locale: 'en' | 'fa') =>
+export const getDictionary = async (locale: Lang) =>
   dictionaries[locale]();

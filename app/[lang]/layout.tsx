@@ -3,8 +3,9 @@ import { vazirmatn } from '@/app/fonts';
 import '../globals.css';
 import Header from '@/app/components/layout/Header';
 import { getDictionary } from '@/app/[lang]/dictionaries';
+import { Lang } from '@/app/types/lang';
 
-export async function generateMetadata({ params }: { params: { lang: 'en' | 'fa' } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { lang: Lang } }): Promise<Metadata> {
   const dict = await getDictionary(params.lang);
   
   return {
@@ -18,7 +19,7 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ lang: 'en' | 'fa' }>;
+  params: Promise<{ lang: Lang }>;
 }) {
   const { lang } = await params;
   const isRTL = lang === 'fa';
