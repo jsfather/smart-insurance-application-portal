@@ -15,7 +15,6 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ lang: 'en' | 'fa' }>;
 }) {
-  // Await the params to ensure they're ready
   const { lang } = await params;
   const isRTL = lang === 'fa';
   const direction = isRTL ? 'rtl' : 'ltr';

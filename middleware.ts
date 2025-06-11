@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// List of supported locales
 const locales = ['en', 'fa'] as const;
 type Locale = (typeof locales)[number];
 
-/**
- * Get the preferred locale from the request headers.
- * Falls back to 'en-US' if none match.
- */
 function getLocale(request: NextRequest): Locale {
   const acceptLang = request.headers.get('accept-language');
   if (acceptLang) {
@@ -23,7 +18,6 @@ function getLocale(request: NextRequest): Locale {
     }
   }
 
-  // Default fallback locale
   return 'en';
 }
 
@@ -46,8 +40,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // Skip internal Next.js paths
-    '/((?!_next|favicon.ico|robots.txt|api).*)',
-  ],
+  matcher: ['/((?!_next|favicon.ico|robots.txt|api).*)'],
 };
