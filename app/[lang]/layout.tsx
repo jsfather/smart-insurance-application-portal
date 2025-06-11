@@ -2,11 +2,16 @@ import type { Metadata } from 'next';
 import { vazirmatn } from '@/app/fonts';
 import '../globals.css';
 import Header from '@/app/components/layout/Header';
+import { getDictionary } from '@/app/[lang]/dictionaries';
 
-export const metadata: Metadata = {
-  title: 'Smart Insurance',
-  description: 'Smart Insurance Application Portal',
-};
+export async function generateMetadata({ params }: { params: { lang: 'en' | 'fa' } }): Promise<Metadata> {
+  const dict = await getDictionary(params.lang);
+  
+  return {
+    title: dict.site.shortTitle,
+    description: dict.site.fullTitle,
+  };
+}
 
 export default async function RootLayout({
   children,
