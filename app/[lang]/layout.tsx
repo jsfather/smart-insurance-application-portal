@@ -3,7 +3,7 @@ import { vazirmatn } from '@/app/fonts';
 import '../globals.css';
 import Header from '@/app/components/layout/Header';
 import { getDictionary } from '@/app/[lang]/dictionaries';
-import { Lang } from '@/app/types/lang';
+import { Lang } from '@/app/lib/types/lang';
 
 export async function generateMetadata({ params }: { params: { lang: Lang } }): Promise<Metadata> {
   const dict = await getDictionary(params.lang);

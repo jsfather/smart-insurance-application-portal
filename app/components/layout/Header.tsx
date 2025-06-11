@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Globe } from 'lucide-react';
 import DarkModeToggle from '@/app/components/ui/DarkModeToggle';
 import { getDictionary } from '@/app/[lang]/dictionaries';
-import { Lang } from '@/app/types/lang';
+import { Lang } from '@/app/lib/types/lang';
 
 interface HeaderProps {
   lang: Lang;
