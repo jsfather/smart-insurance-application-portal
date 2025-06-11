@@ -1,5 +1,5 @@
 import 'server-only';
-import { Lang } from '@/app/types/lang';
+import { Lang } from '@/app/lib/types/lang';
 
 const dictionaries = {
   en: () =>
