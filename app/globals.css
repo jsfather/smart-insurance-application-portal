@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-vazirmatn: var(--font-vazirmatn);
+
+  --color-background: #d9eafd;
+  --color-forground: #f8fafc;
+  --color-dim: #bcccdc;
+  --color-bright: #9aa6b2;
+
+  --color-dark-background: #393e46;
+  --color-dark-forground: #222831;
+  --color-dark-dim: #948979;
+  --color-dark-bright: #dfd0b8;
+}
