@@ -204,7 +204,7 @@ export default function DynamicForm() {
     if (Array.isArray(selectedForm.fields)) {
       processFields(selectedForm.fields);
     }
-  }, [formValues, selectedFormId, forms]);
+  }, [formValues, selectedFormId, forms, dynamicOptions]);
 
   const selectedForm = forms?.find((form) => form.formId === selectedFormId);
 
