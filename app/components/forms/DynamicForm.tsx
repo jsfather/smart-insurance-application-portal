@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchDynamicForm } from '@/app/lib/api/insurance';
+import { fetchDynamicForm, submitForm } from '@/app/lib/api/insurance';
 import request from '@/app/lib/api/client';
 import type { DynamicForm } from '@/app/lib/types/dynamic-form';
 
@@ -28,6 +28,9 @@ export default function DynamicForm() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingOptions, setLoadingOptions] = useState<{ [key: string]: boolean }>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const baseInputClasses = "w-full px-4 py-2.5 border rounded-lg transition-all duration-200 bg-[var(--color-forground)] dark:bg-[var(--color-dark-forground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] focus:border-transparent text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]";
   const labelClasses = "block text-sm font-medium mb-2 text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]";
@@ -380,7 +383,38 @@ export default function DynamicForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form values:', formValues);
+    
+    if (!selectedForm) return;
+
+    try {
+      setIsSubmitting(true);
+      setSubmitError(null);
+      setSubmitSuccess(false);
+
+      const formData = {
+        formId: selectedForm.formId,
+        title: selectedForm.title,
+        fields: selectedForm.fields.map(field => ({
+          ...field,
+          value: formValues[field.id]
+        }))
+      };
+
+      await submitForm(formData);
+
+      setFormValues({});
+      setSelectedFormId('');
+      setSubmitSuccess(true);
+
+      setTimeout(() => {
+        setSubmitSuccess(false);
+      }, 5000);
+
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit form');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -406,6 +440,28 @@ export default function DynamicForm() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      {submitSuccess && (
+        <div className="mb-6 p-4 rounded-lg bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300">
+          <div className="flex items-center">
+            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Application submitted successfully!
+          </div>
+        </div>
+      )}
+
+      {submitError && (
+        <div className="mb-6 p-4 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300">
+          <div className="flex items-center">
+            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {submitError}
+          </div>
+        </div>
+      )}
+
       <div className="mb-8">
         <label className="block text-lg font-medium mb-2 text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]" htmlFor="formSelect">
           Select Insurance Type
@@ -450,9 +506,17 @@ export default function DynamicForm() {
           >
             <button
               type="submit"
-              className="px-6 py-3 bg-[var(--color-bright)] dark:bg-[var(--color-dark-bright)] text-[var(--color-forground)] dark:text-[var(--color-dark-forground)] rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] dark:focus:ring-[var(--color-dark-bright)] focus:ring-offset-2 transition-colors duration-200 font-medium text-sm shadow-sm"
+              disabled={isSubmitting}
+              className="px-6 py-3 bg-[var(--color-bright)] dark:bg-[var(--color-dark-bright)] text-[var(--color-forground)] dark:text-[var(--color-dark-forground)] rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] dark:focus:ring-[var(--color-dark-bright)] focus:ring-offset-2 transition-colors duration-200 font-medium text-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Application
+              {isSubmitting ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-[var(--color-forground)] dark:border-[var(--color-dark-forground)] border-t-transparent mr-2"></div>
+                  Submitting...
+                </div>
+              ) : (
+                'Submit Application'
+              )}
             </button>
           </motion.div>
         </form>
