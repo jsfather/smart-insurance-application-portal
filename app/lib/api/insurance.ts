@@ -1,6 +1,6 @@
 import request from '@/app/lib/api/client';
 import { DynamicForm } from '@/app/lib/types/dynamic-form';
-import { TableData } from '@/app/lib/types/table-data';
+import { Submission } from '@/app/lib/types/submissions';
 
 export const fetchDynamicForm = async () => {
   const response = await request<DynamicForm[]>('/api/insurance/forms');
@@ -26,7 +26,9 @@ export const submitForm = async (data: Partial<DynamicForm>) => {
 };
 
 export const fetchInsuranceSubmissions = async () => {
-  const response = await request<TableData>('/api/insurance/forms/submissions');
+  const response = await request<{ data: Submission }>(
+    '/api/insurance/forms/submissions'
+  );
 
   if (!response) {
     throw new Error('خطایی در دریافت لیست درخواست های بیمه رخ داده است');

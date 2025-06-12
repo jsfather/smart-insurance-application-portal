@@ -2,7 +2,12 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from '@hello-pangea/dnd';
 import { fetchInsuranceSubmissions } from '@/app/lib/api/insurance';
 import type { Submission } from '@/app/lib/types/submissions';
 
@@ -19,7 +24,6 @@ export default function SubmissionsTable({
 }: SubmissionsTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [availableColumns, setAvailableColumns] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<{
@@ -34,7 +38,6 @@ export default function SubmissionsTable({
         const response = await fetchInsuranceSubmissions();
         if (Array.isArray(response.data)) {
           setSubmissions(response.data);
-          setAvailableColumns(response.columns);
           setError(null);
         } else {
           throw new Error('Invalid response format');
@@ -44,7 +47,6 @@ export default function SubmissionsTable({
           err instanceof Error ? err.message : 'Failed to load submissions'
         );
         setSubmissions([]);
-        setAvailableColumns([]);
       } finally {
         setLoading(false);
       }
@@ -56,8 +58,10 @@ export default function SubmissionsTable({
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const sourceIndex = (currentPage - 1) * ITEMS_PER_PAGE + result.source.index;
-    const destinationIndex = (currentPage - 1) * ITEMS_PER_PAGE + result.destination.index;
+    const sourceIndex =
+      (currentPage - 1) * ITEMS_PER_PAGE + result.source.index;
+    const destinationIndex =
+      (currentPage - 1) * ITEMS_PER_PAGE + result.destination.index;
 
     setSubmissions((prevSubmissions) => {
       const newSubmissions = [...prevSubmissions];
@@ -229,7 +233,8 @@ export default function SubmissionsTable({
                           }`}
                         >
                           {visibleColumns.map((columnKey) => {
-                            const value = submission[columnKey as keyof Submission];
+                            const value =
+                              submission[columnKey as keyof Submission];
                             if (value === undefined) return null;
                             return (
                               <td
