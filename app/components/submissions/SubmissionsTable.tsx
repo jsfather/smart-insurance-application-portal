@@ -12,7 +12,10 @@ interface SubmissionsTableProps {
 
 const ITEMS_PER_PAGE = 10;
 
-export default function SubmissionsTable({ searchQuery, visibleColumns }: SubmissionsTableProps) {
+export default function SubmissionsTable({
+  searchQuery,
+  visibleColumns,
+}: SubmissionsTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [availableColumns, setAvailableColumns] = useState<string[]>([]);
@@ -32,7 +35,9 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
         setAvailableColumns(response.columns);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load submissions');
+        setError(
+          err instanceof Error ? err.message : 'Failed to load submissions'
+        );
         setSubmissions([]);
         setAvailableColumns([]);
       } finally {
@@ -45,8 +50,8 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
 
   const filteredData = useMemo(() => {
     if (!submissions) return [];
-    return submissions.filter(submission =>
-      Object.values(submission).some(value =>
+    return submissions.filter((submission) =>
+      Object.values(submission).some((value) =>
         value?.toString().toLowerCase().includes(searchQuery.toLowerCase())
       )
     );
@@ -88,19 +93,22 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
 
   const columnConfig = {
     'Full Name': { label: 'Full Name', sortable: true },
-    'Age': { label: 'Age', sortable: true },
-    'Gender': { label: 'Gender', sortable: true },
+    Age: { label: 'Age', sortable: true },
+    Gender: { label: 'Gender', sortable: true },
     'Insurance Type': { label: 'Insurance Type', sortable: true },
-    'City': { label: 'City', sortable: true },
+    City: { label: 'City', sortable: true },
   };
 
   if (loading) {
     return (
       <div className="py-12">
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-[var(--color-dim)] dark:bg-[var(--color-dark-dim)] rounded-lg opacity-20"></div>
+          <div className="h-10 rounded-lg bg-[var(--color-dim)] opacity-20 dark:bg-[var(--color-dark-dim)]"></div>
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-[var(--color-dim)] dark:bg-[var(--color-dark-dim)] rounded-lg opacity-20"></div>
+            <div
+              key={i}
+              className="h-16 rounded-lg bg-[var(--color-dim)] opacity-20 dark:bg-[var(--color-dark-dim)]"
+            ></div>
           ))}
         </div>
       </div>
@@ -110,9 +118,19 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
   if (error) {
     return (
       <div className="py-12 text-center">
-        <div className="inline-flex items-center px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/50">
-          <svg className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div className="inline-flex items-center rounded-lg bg-red-50 px-4 py-2 dark:bg-red-900/50">
+          <svg
+            className="mr-2 h-5 w-5 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <span className="text-red-600 dark:text-red-400">{error}</span>
         </div>
@@ -135,7 +153,8 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
           <thead>
             <tr className="border-b border-[var(--color-dim)] dark:border-[var(--color-dark-dim)]">
               {visibleColumns.map((columnKey) => {
-                const column = columnConfig[columnKey as keyof typeof columnConfig];
+                const column =
+                  columnConfig[columnKey as keyof typeof columnConfig];
                 if (!column) return null;
                 return (
                   <th
@@ -144,11 +163,14 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
                   >
                     <button
                       className="flex items-center space-x-1 focus:outline-none"
-                      onClick={() => column.sortable && handleSort(columnKey as keyof Submission)}
+                      onClick={() =>
+                        column.sortable &&
+                        handleSort(columnKey as keyof Submission)
+                      }
                     >
                       <span>{column.label}</span>
                       {column.sortable && sortConfig.key === columnKey && (
-                        <span className="w-4 h-4">
+                        <span className="h-4 w-4">
                           {sortConfig.direction === 'asc' ? (
                             <ChevronUpIcon />
                           ) : (
@@ -166,7 +188,7 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
             {paginatedData.map((submission) => (
               <tr
                 key={submission.id}
-                className="border-b border-[var(--color-dim)] dark:border-[var(--color-dark-dim)] hover:bg-[var(--color-background)] dark:hover:bg-[var(--color-dark-background)] transition-colors"
+                className="border-b border-[var(--color-dim)] transition-colors hover:bg-[var(--color-background)] dark:border-[var(--color-dark-dim)] dark:hover:bg-[var(--color-dark-background)]"
               >
                 {visibleColumns.map((columnKey) => {
                   const value = submission[columnKey as keyof Submission];
@@ -186,22 +208,26 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
         </table>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-[var(--color-dim)] dark:border-[var(--color-dark-dim)]">
+      <div className="flex items-center justify-between border-t border-[var(--color-dim)] px-6 py-4 dark:border-[var(--color-dark-dim)]">
         <div className="text-sm text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]">
-          Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} of {sortedData.length} results
+          Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{' '}
+          {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} of{' '}
+          {sortedData.length} results
         </div>
         <div className="flex space-x-2">
           <button
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded-lg bg-[var(--color-background)] dark:bg-[var(--color-dark-background)] text-[var(--color-dark-forground)] dark:text-[var(--color-forground)] disabled:opacity-50"
+            className="rounded-lg bg-[var(--color-background)] px-3 py-1 text-[var(--color-dark-forground)] disabled:opacity-50 dark:bg-[var(--color-dark-background)] dark:text-[var(--color-forground)]"
           >
             Previous
           </button>
           <button
-            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+            }
             disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded-lg bg-[var(--color-background)] dark:bg-[var(--color-dark-background)] text-[var(--color-dark-forground)] dark:text-[var(--color-forground)] disabled:opacity-50"
+            className="rounded-lg bg-[var(--color-background)] px-3 py-1 text-[var(--color-dark-forground)] disabled:opacity-50 dark:bg-[var(--color-dark-background)] dark:text-[var(--color-forground)]"
           >
             Next
           </button>
@@ -209,4 +235,4 @@ export default function SubmissionsTable({ searchQuery, visibleColumns }: Submis
       </div>
     </div>
   );
-} 
+}

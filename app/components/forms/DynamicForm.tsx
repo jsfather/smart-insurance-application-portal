@@ -17,6 +17,7 @@ interface DynamicOptions {
 interface DynamicOptionsResponse {
   country?: string;
   states?: string[];
+
   [key: string]: any;
 }
 
@@ -27,15 +28,21 @@ export default function DynamicForm() {
   const [dynamicOptions, setDynamicOptions] = useState<DynamicOptions>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [loadingOptions, setLoadingOptions] = useState<{ [key: string]: boolean }>({});
+  const [loadingOptions, setLoadingOptions] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const baseInputClasses = "w-full px-4 py-2.5 border rounded-lg transition-all duration-200 bg-[var(--color-forground)] dark:bg-[var(--color-dark-forground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] focus:border-transparent text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]";
-  const labelClasses = "block text-sm font-medium mb-2 text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]";
-  const helperTextClasses = "text-xs text-[var(--color-dim)] dark:text-[var(--color-dark-dim)] mt-1";
-  const groupClasses = "border border-[var(--color-dim)] dark:border-[var(--color-dark-dim)] rounded-xl p-6 bg-[var(--color-background)] dark:bg-[var(--color-dark-background)] backdrop-blur-sm";
+  const baseInputClasses =
+    'w-full px-4 py-2.5 border rounded-lg transition-all duration-200 bg-[var(--color-forground)] dark:bg-[var(--color-dark-forground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] focus:border-transparent text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]';
+  const labelClasses =
+    'block text-sm font-medium mb-2 text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]';
+  const helperTextClasses =
+    'text-xs text-[var(--color-dim)] dark:text-[var(--color-dark-dim)] mt-1';
+  const groupClasses =
+    'border border-[var(--color-dim)] dark:border-[var(--color-dark-dim)] rounded-xl p-6 bg-[var(--color-background)] dark:bg-[var(--color-dark-background)] backdrop-blur-sm';
 
   const getDynamicForm = async () => {
     try {
@@ -58,7 +65,7 @@ export default function DynamicForm() {
   const fetchDynamicOptions = async (field: any, dependentValue: string) => {
     if (!field.dynamicOptions?.endpoint) return;
 
-    setLoadingOptions(prev => ({ ...prev, [field.id]: true }));
+    setLoadingOptions((prev) => ({ ...prev, [field.id]: true }));
 
     try {
       const endpoint = `${field.dynamicOptions.endpoint}?${field.dynamicOptions.dependsOn}=${dependentValue}`;
@@ -71,30 +78,30 @@ export default function DynamicForm() {
         options = response;
       }
 
-      setDynamicOptions(prev => ({
+      setDynamicOptions((prev) => ({
         ...prev,
-        [field.id]: options
+        [field.id]: options,
       }));
     } catch (error) {
-      setDynamicOptions(prev => ({
+      setDynamicOptions((prev) => ({
         ...prev,
-        [field.id]: []
+        [field.id]: [],
       }));
     } finally {
-      setLoadingOptions(prev => ({ ...prev, [field.id]: false }));
+      setLoadingOptions((prev) => ({ ...prev, [field.id]: false }));
     }
   };
 
   const clearDependentFields = (fieldId: string, fields: any[]) => {
-    fields.forEach(field => {
+    fields.forEach((field) => {
       if (field.dynamicOptions?.dependsOn === fieldId) {
-        setFormValues(prev => ({
+        setFormValues((prev) => ({
           ...prev,
-          [field.id]: ''
+          [field.id]: '',
         }));
-        setDynamicOptions(prev => ({
+        setDynamicOptions((prev) => ({
           ...prev,
-          [field.id]: []
+          [field.id]: [],
         }));
       }
       if (Array.isArray(field.fields)) {
@@ -104,9 +111,9 @@ export default function DynamicForm() {
   };
 
   const handleInputChange = (fieldId: string, value: any) => {
-    setFormValues(prev => ({
+    setFormValues((prev) => ({
       ...prev,
-      [fieldId]: value
+      [fieldId]: value,
     }));
 
     if (!value && selectedForm) {
@@ -121,20 +128,21 @@ export default function DynamicForm() {
   }, [selectedFormId]);
 
   useEffect(() => {
-    const selectedForm = forms?.find(form => form.formId === selectedFormId);
+    const selectedForm = forms?.find((form) => form.formId === selectedFormId);
     if (!selectedForm) return;
 
     const processFields = (fields: any[]) => {
-      fields.forEach(field => {
+      fields.forEach((field) => {
         if (field.dynamicOptions) {
           const dependentFieldId = field.dynamicOptions.dependsOn;
           const dependentValue = formValues[dependentFieldId];
           const currentOptions = dynamicOptions[field.id] || [];
 
-          if (dependentValue && 
-              (currentOptions.length === 0 || 
-               field.lastDependentValue !== dependentValue)) {
-            
+          if (
+            dependentValue &&
+            (currentOptions.length === 0 ||
+              field.lastDependentValue !== dependentValue)
+          ) {
             field.lastDependentValue = dependentValue;
             fetchDynamicOptions(field, dependentValue);
           }
@@ -150,7 +158,7 @@ export default function DynamicForm() {
     }
   }, [formValues, selectedFormId, forms]);
 
-  const selectedForm = forms?.find(form => form.formId === selectedFormId);
+  const selectedForm = forms?.find((form) => form.formId === selectedFormId);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedFormId(e.target.value);
@@ -161,8 +169,10 @@ export default function DynamicForm() {
     if (!field.visibility) return true;
 
     const dependentValue = formValues[field.visibility.dependsOn];
-    return field.visibility.condition === 'equals' && 
-           dependentValue === field.visibility.value;
+    return (
+      field.visibility.condition === 'equals' &&
+      dependentValue === field.visibility.value
+    );
   };
 
   const getFieldOptions = (field: any): string[] => {
@@ -180,11 +190,12 @@ export default function DynamicForm() {
         case 'group':
           return (
             <fieldset className={groupClasses}>
-              <legend className="text-lg font-semibold px-2 text-gray-800 dark:text-gray-200">
+              <legend className="px-2 text-lg font-semibold text-gray-800 dark:text-gray-200">
                 {field.label}
               </legend>
               <div className="space-y-4">
-                {Array.isArray(field.fields) && field.fields.map((subField: any) => renderField(subField))}
+                {Array.isArray(field.fields) &&
+                  field.fields.map((subField: any) => renderField(subField))}
               </div>
             </fieldset>
           );
@@ -194,14 +205,14 @@ export default function DynamicForm() {
             <div className="mb-4">
               <label className={labelClasses} htmlFor={field.id}>
                 {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {field.required && <span className="ml-1 text-red-500">*</span>}
               </label>
               <input
                 type="text"
                 id={field.id}
                 value={formValues[field.id] || ''}
                 onChange={(e) => handleInputChange(field.id, e.target.value)}
-                className={`${baseInputClasses} border-gray-300 dark:border-gray-600 placeholder-gray-400 dark:placeholder-gray-500`}
+                className={`${baseInputClasses} border-gray-300 placeholder-gray-400 dark:border-gray-600 dark:placeholder-gray-500`}
                 required={field.required}
                 placeholder={`Enter ${field.label.toLowerCase()}`}
               />
@@ -213,7 +224,7 @@ export default function DynamicForm() {
             <div className="mb-4">
               <label className={labelClasses} htmlFor={field.id}>
                 {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {field.required && <span className="ml-1 text-red-500">*</span>}
               </label>
               <input
                 type="number"
@@ -226,13 +237,15 @@ export default function DynamicForm() {
                 max={field.validation?.max}
                 placeholder={`Enter ${field.label.toLowerCase()}`}
               />
-              {(field.validation?.min !== undefined || field.validation?.max !== undefined) && (
+              {(field.validation?.min !== undefined ||
+                field.validation?.max !== undefined) && (
                 <p className={helperTextClasses}>
-                  {field.validation?.min !== undefined && field.validation?.max !== undefined
+                  {field.validation?.min !== undefined &&
+                  field.validation?.max !== undefined
                     ? `Value must be between ${field.validation.min} and ${field.validation.max}`
                     : field.validation?.min !== undefined
-                    ? `Minimum value: ${field.validation.min}`
-                    : `Maximum value: ${field.validation.max}`}
+                      ? `Minimum value: ${field.validation.min}`
+                      : `Maximum value: ${field.validation.max}`}
                 </p>
               )}
             </div>
@@ -241,14 +254,14 @@ export default function DynamicForm() {
         case 'select':
           const options = getFieldOptions(field);
           const isLoading = loadingOptions[field.id];
-          
+
           return (
             <div className="mb-4">
               <label className={labelClasses} htmlFor={field.id}>
                 {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {field.required && <span className="ml-1 text-red-500">*</span>}
                 {field.dynamicOptions && (
-                  <span className="ml-2 text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full">
+                  <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                     Dynamic
                   </span>
                 )}
@@ -260,7 +273,7 @@ export default function DynamicForm() {
                   onChange={(e) => handleInputChange(field.id, e.target.value)}
                   className={`${baseInputClasses} ${
                     isLoading ? 'opacity-50' : ''
-                  } appearance-none border-gray-300 dark:border-gray-600 pr-10`}
+                  } appearance-none border-gray-300 pr-10 dark:border-gray-600`}
                   required={field.required}
                   disabled={isLoading}
                 >
@@ -271,12 +284,20 @@ export default function DynamicForm() {
                     </option>
                   ))}
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                   {isLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
                   ) : (
-                    <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   )}
                 </div>
@@ -294,23 +315,31 @@ export default function DynamicForm() {
             <div className="mb-4">
               <label className={labelClasses}>
                 {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {field.required && <span className="ml-1 text-red-500">*</span>}
               </label>
-              <div className="space-y-2 mt-2">
-                {Array.isArray(field.options) && field.options.map((option: string) => (
-                  <label key={option} className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                    <input
-                      type="radio"
-                      name={field.id}
-                      value={option}
-                      checked={formValues[field.id] === option}
-                      onChange={(e) => handleInputChange(field.id, e.target.value)}
-                      className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
-                      required={field.required}
-                    />
-                    <span className="text-gray-700 dark:text-gray-200">{option}</span>
-                  </label>
-                ))}
+              <div className="mt-2 space-y-2">
+                {Array.isArray(field.options) &&
+                  field.options.map((option: string) => (
+                    <label
+                      key={option}
+                      className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
+                      <input
+                        type="radio"
+                        name={field.id}
+                        value={option}
+                        checked={formValues[field.id] === option}
+                        onChange={(e) =>
+                          handleInputChange(field.id, e.target.value)
+                        }
+                        className="h-4 w-4 border-gray-300 text-blue-500 focus:ring-blue-500 dark:border-gray-600"
+                        required={field.required}
+                      />
+                      <span className="text-gray-700 dark:text-gray-200">
+                        {option}
+                      </span>
+                    </label>
+                  ))}
               </div>
             </div>
           );
@@ -320,27 +349,42 @@ export default function DynamicForm() {
             <div className="mb-4">
               <label className={labelClasses}>
                 {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {field.required && <span className="ml-1 text-red-500">*</span>}
               </label>
-              <div className="space-y-2 mt-2">
-                {Array.isArray(field.options) && field.options.map((option: string) => (
-                  <label key={option} className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                    <input
-                      type="checkbox"
-                      value={option}
-                      checked={Array.isArray(formValues[field.id]) && formValues[field.id].includes(option)}
-                      onChange={(e) => {
-                        const currentValues = Array.isArray(formValues[field.id]) ? formValues[field.id] : [];
-                        const newValues = e.target.checked
-                          ? [...currentValues, option]
-                          : currentValues.filter((value: string) => value !== option);
-                        handleInputChange(field.id, newValues);
-                      }}
-                      className="h-4 w-4 text-blue-500 focus:ring-blue-500 rounded border-gray-300 dark:border-gray-600"
-                    />
-                    <span className="text-gray-700 dark:text-gray-200">{option}</span>
-                  </label>
-                ))}
+              <div className="mt-2 space-y-2">
+                {Array.isArray(field.options) &&
+                  field.options.map((option: string) => (
+                    <label
+                      key={option}
+                      className="flex cursor-pointer items-center space-x-3 rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
+                      <input
+                        type="checkbox"
+                        value={option}
+                        checked={
+                          Array.isArray(formValues[field.id]) &&
+                          formValues[field.id].includes(option)
+                        }
+                        onChange={(e) => {
+                          const currentValues = Array.isArray(
+                            formValues[field.id]
+                          )
+                            ? formValues[field.id]
+                            : [];
+                          const newValues = e.target.checked
+                            ? [...currentValues, option]
+                            : currentValues.filter(
+                                (value: string) => value !== option
+                              );
+                          handleInputChange(field.id, newValues);
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500 dark:border-gray-600"
+                      />
+                      <span className="text-gray-700 dark:text-gray-200">
+                        {option}
+                      </span>
+                    </label>
+                  ))}
               </div>
             </div>
           );
@@ -350,7 +394,7 @@ export default function DynamicForm() {
             <div className="mb-4">
               <label className={labelClasses} htmlFor={field.id}>
                 {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
+                {field.required && <span className="ml-1 text-red-500">*</span>}
               </label>
               <input
                 type="date"
@@ -383,7 +427,7 @@ export default function DynamicForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedForm) return;
 
     try {
@@ -394,10 +438,10 @@ export default function DynamicForm() {
       const formData = {
         formId: selectedForm.formId,
         title: selectedForm.title,
-        fields: selectedForm.fields.map(field => ({
+        fields: selectedForm.fields.map((field) => ({
           ...field,
-          value: formValues[field.id]
-        }))
+          value: formValues[field.id],
+        })),
       };
 
       await submitForm(formData);
@@ -409,9 +453,10 @@ export default function DynamicForm() {
       setTimeout(() => {
         setSubmitSuccess(false);
       }, 5000);
-
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Failed to submit form');
+      setSubmitError(
+        error instanceof Error ? error.message : 'Failed to submit form'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -420,19 +465,31 @@ export default function DynamicForm() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--color-bright)] dark:border-[var(--color-dark-bright)] border-t-transparent"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--color-bright)] border-t-transparent dark:border-[var(--color-dark-bright)]"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <div className="inline-flex items-center px-4 py-2 rounded-lg bg-[var(--color-background)] dark:bg-[var(--color-dark-background)]">
-          <svg className="h-5 w-5 text-[var(--color-bright)] dark:text-[var(--color-dark-bright)] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <div className="py-12 text-center">
+        <div className="inline-flex items-center rounded-lg bg-[var(--color-background)] px-4 py-2 dark:bg-[var(--color-dark-background)]">
+          <svg
+            className="mr-2 h-5 w-5 text-[var(--color-bright)] dark:text-[var(--color-dark-bright)]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
-          <span className="text-[var(--color-bright)] dark:text-[var(--color-dark-bright)]">{error}</span>
+          <span className="text-[var(--color-bright)] dark:text-[var(--color-dark-bright)]">
+            {error}
+          </span>
         </div>
       </div>
     );
@@ -441,10 +498,20 @@ export default function DynamicForm() {
   return (
     <div className="mx-auto max-w-3xl">
       {submitSuccess && (
-        <div className="mb-6 p-4 rounded-lg bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300">
+        <div className="mb-6 rounded-lg bg-green-100 p-4 text-green-800 dark:bg-green-900/50 dark:text-green-300">
           <div className="flex items-center">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="mr-2 h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
             Application submitted successfully!
           </div>
@@ -452,10 +519,20 @@ export default function DynamicForm() {
       )}
 
       {submitError && (
-        <div className="mb-6 p-4 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300">
+        <div className="mb-6 rounded-lg bg-red-100 p-4 text-red-800 dark:bg-red-900/50 dark:text-red-300">
           <div className="flex items-center">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="mr-2 h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             {submitError}
           </div>
@@ -463,7 +540,10 @@ export default function DynamicForm() {
       )}
 
       <div className="mb-8">
-        <label className="block text-lg font-medium mb-2 text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]" htmlFor="formSelect">
+        <label
+          className="mb-2 block text-lg font-medium text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]"
+          htmlFor="formSelect"
+        >
           Select Insurance Type
         </label>
         <div className="relative">
@@ -471,18 +551,27 @@ export default function DynamicForm() {
             id="formSelect"
             value={selectedFormId}
             onChange={handleFormChange}
-            className={`${baseInputClasses} appearance-none border-[var(--color-dim)] dark:border-[var(--color-dark-dim)] pr-10`}
+            className={`${baseInputClasses} appearance-none border-[var(--color-dim)] pr-10 dark:border-[var(--color-dark-dim)]`}
           >
             <option value="">Choose the type of insurance</option>
-            {Array.isArray(forms) && forms.map((form) => (
-              <option key={form.formId} value={form.formId}>
-                {form.title}
-              </option>
-            ))}
+            {Array.isArray(forms) &&
+              forms.map((form) => (
+                <option key={form.formId} value={form.formId}>
+                  {form.title}
+                </option>
+              ))}
           </select>
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg className="h-5 w-5 text-[var(--color-dim)] dark:text-[var(--color-dark-dim)]" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+            <svg
+              className="h-5 w-5 text-[var(--color-dim)] dark:text-[var(--color-dark-dim)]"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
         </div>
@@ -490,14 +579,15 @@ export default function DynamicForm() {
 
       {selectedForm && (
         <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="space-y-6 bg-[var(--color-forground)] dark:bg-[var(--color-dark-forground)] rounded-2xl p-8 shadow-sm border border-[var(--color-dim)] dark:border-[var(--color-dark-dim)]">
-            {Array.isArray(selectedForm.fields) && selectedForm.fields.map(field => (
-              <AnimatePresence key={field.id} mode="sync">
-                {renderField(field)}
-              </AnimatePresence>
-            ))}
+          <div className="space-y-6 rounded-2xl border border-[var(--color-dim)] bg-[var(--color-forground)] p-8 shadow-sm dark:border-[var(--color-dark-dim)] dark:bg-[var(--color-dark-forground)]">
+            {Array.isArray(selectedForm.fields) &&
+              selectedForm.fields.map((field) => (
+                <AnimatePresence key={field.id} mode="sync">
+                  {renderField(field)}
+                </AnimatePresence>
+              ))}
           </div>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -507,11 +597,11 @@ export default function DynamicForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-3 bg-[var(--color-bright)] dark:bg-[var(--color-dark-bright)] text-[var(--color-forground)] dark:text-[var(--color-dark-forground)] rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] dark:focus:ring-[var(--color-dark-bright)] focus:ring-offset-2 transition-colors duration-200 font-medium text-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg bg-[var(--color-bright)] px-6 py-3 text-sm font-medium text-[var(--color-forground)] shadow-sm transition-colors duration-200 hover:opacity-90 focus:ring-2 focus:ring-[var(--color-bright)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-[var(--color-dark-bright)] dark:text-[var(--color-dark-forground)] dark:focus:ring-[var(--color-dark-bright)]"
             >
               {isSubmitting ? (
                 <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-[var(--color-forground)] dark:border-[var(--color-dark-forground)] border-t-transparent mr-2"></div>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-forground)] border-t-transparent dark:border-[var(--color-dark-forground)]"></div>
                   Submitting...
                 </div>
               ) : (

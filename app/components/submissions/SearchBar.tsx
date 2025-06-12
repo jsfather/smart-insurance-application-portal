@@ -10,7 +10,7 @@ interface SearchBarProps {
 export default function SearchBar({ value, onChange }: SearchBarProps) {
   return (
     <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
         <MagnifyingGlassIcon className="h-5 w-5 text-[var(--color-dim)] dark:text-[var(--color-dark-dim)]" />
       </div>
       <input
@@ -18,8 +18,8 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search submissions..."
-        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-[var(--color-dim)] dark:border-[var(--color-dark-dim)] bg-[var(--color-forground)] dark:bg-[var(--color-dark-forground)] text-[var(--color-dark-forground)] dark:text-[var(--color-forground)] placeholder-[var(--color-dim)] dark:placeholder-[var(--color-dark-dim)] focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] dark:focus:ring-[var(--color-dark-bright)] focus:border-transparent transition-colors"
+        className="w-full rounded-lg border border-[var(--color-dim)] bg-[var(--color-forground)] py-2.5 pr-4 pl-10 text-[var(--color-dark-forground)] placeholder-[var(--color-dim)] transition-colors focus:border-transparent focus:ring-2 focus:ring-[var(--color-bright)] focus:outline-none dark:border-[var(--color-dark-dim)] dark:bg-[var(--color-dark-forground)] dark:text-[var(--color-forground)] dark:placeholder-[var(--color-dark-dim)] dark:focus:ring-[var(--color-dark-bright)]"
       />
     </div>
   );
-} 
+}

@@ -10,4 +10,4 @@ export interface Submission {
 export interface TableData {
   columns: string[];
   data: Submission[];
-} 
+}

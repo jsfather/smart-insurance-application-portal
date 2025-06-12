@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import { vazirmatn } from '@/app/fonts';
-import '../globals.css';
+import '@/app/globals.css';
 import Header from '@/app/components/layout/Header';
 import { getDictionary } from '@/app/[lang]/dictionaries';
 import { Lang } from '@/app/lib/types/lang';
 
-export async function generateMetadata({ params }: { params: { lang: Lang } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { lang: Lang };
+}): Promise<Metadata> {
   const dict = await getDictionary(params.lang);
-  
+
   return {
     title: dict.site.shortTitle,
     description: dict.site.fullTitle,

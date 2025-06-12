@@ -8,5 +8,4 @@ const dictionaries = {
     import('@/app/dictionaries/fa.json').then((module) => module.default),
 };
 
-export const getDictionary = async (locale: Lang) =>
-  dictionaries[locale]();
+export const getDictionary = async (locale: Lang) => dictionaries[locale]();

@@ -13,39 +13,36 @@ export default function Page() {
     'Age',
     'Gender',
     'Insurance Type',
-    'City'
+    'City',
   ]);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-12">
         <section>
-          <h2 className="text-2xl font-semibold mb-6 text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]">
+          <h2 className="mb-6 text-2xl font-semibold text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]">
             New Insurance Application
           </h2>
           <DynamicForm />
         </section>
 
         <section>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <h2 className="text-2xl font-semibold text-[var(--color-dark-forground)] dark:text-[var(--color-forground)] mb-4 sm:mb-0">
+          <div className="mb-6 flex flex-col items-start justify-between sm:flex-row sm:items-center">
+            <h2 className="mb-4 text-2xl font-semibold text-[var(--color-dark-forground)] sm:mb-0 dark:text-[var(--color-forground)]">
               Your Insurance Applications
             </h2>
-            <ColumnCustomizer 
+            <ColumnCustomizer
               visibleColumns={visibleColumns}
               onColumnChange={setVisibleColumns}
             />
           </div>
 
           <div className="mb-6">
-            <SearchBar 
-              value={searchQuery}
-              onChange={setSearchQuery}
-            />
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
 
-          <div className="bg-[var(--color-forground)] dark:bg-[var(--color-dark-forground)] rounded-xl shadow-sm">
-            <SubmissionsTable 
+          <div className="rounded-xl bg-[var(--color-forground)] shadow-sm dark:bg-[var(--color-dark-forground)]">
+            <SubmissionsTable
               searchQuery={searchQuery}
               visibleColumns={visibleColumns}
             />
