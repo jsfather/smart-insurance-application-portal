@@ -4,7 +4,7 @@ export interface DynamicForm {
   fields: FormField[];
 }
 
-interface FormField {
+export interface FormField {
   id: string;
   label: string;
   type: string;
