@@ -21,6 +21,8 @@ interface DynamicOptionsResponse {
   [key: string]: any;
 }
 
+const STORAGE_KEY = 'insurance_form_draft';
+
 export default function DynamicForm() {
   const [forms, setForms] = useState<DynamicForm[] | null>(null);
   const [selectedFormId, setSelectedFormId] = useState<string>('');
@@ -34,6 +36,7 @@ export default function DynamicForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const baseInputClasses =
     'w-full px-4 py-2.5 border rounded-lg transition-all duration-200 bg-[var(--color-forground)] dark:bg-[var(--color-dark-forground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-bright)] focus:border-transparent text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]';
@@ -44,11 +47,56 @@ export default function DynamicForm() {
   const groupClasses =
     'border border-[var(--color-dim)] dark:border-[var(--color-dark-dim)] rounded-xl p-6 bg-[var(--color-background)] dark:bg-[var(--color-dark-background)] backdrop-blur-sm';
 
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(STORAGE_KEY);
+    if (savedDraft) {
+      try {
+        const { formId, values } = JSON.parse(savedDraft);
+        setSelectedFormId(formId);
+        setFormValues(values);
+      } catch (err) {
+        console.error('Failed to load draft:', err);
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialized && selectedFormId && Object.keys(formValues).length > 0) {
+      const draft = {
+        formId: selectedFormId,
+        values: formValues,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    }
+  }, [selectedFormId, formValues, isInitialized]);
+
+  const clearDraft = () => {
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
   const getDynamicForm = async () => {
     try {
+      setLoading(true);
       const response = await fetchDynamicForm();
       if (response) {
         setForms(response);
+        const savedDraft = localStorage.getItem(STORAGE_KEY);
+        if (savedDraft) {
+          try {
+            const { formId, values } = JSON.parse(savedDraft);
+            if (response.some(form => form.formId === formId)) {
+              setSelectedFormId(formId);
+              setFormValues(values);
+            } else {
+              localStorage.removeItem(STORAGE_KEY);
+            }
+          } catch (err) {
+            console.error('Failed to load draft:', err);
+            localStorage.removeItem(STORAGE_KEY);
+          }
+        }
       }
     } catch (error) {
       setError('Failed to load forms');
@@ -161,8 +209,12 @@ export default function DynamicForm() {
   const selectedForm = forms?.find((form) => form.formId === selectedFormId);
 
   const handleFormChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedFormId(e.target.value);
-    setFormValues({});
+    const newFormId = e.target.value;
+    setSelectedFormId(newFormId);
+    if (!newFormId) {
+      setFormValues({});
+      localStorage.removeItem(STORAGE_KEY);
+    }
   };
 
   const isFieldVisible = (field: any) => {
@@ -448,6 +500,7 @@ export default function DynamicForm() {
 
       setFormValues({});
       setSelectedFormId('');
+      clearDraft(); // Clear draft after successful submission
       setSubmitSuccess(true);
 
       setTimeout(() => {
