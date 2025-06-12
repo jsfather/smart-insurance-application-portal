@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { fetchInsuranceSubmissions } from '@/app/lib/api/insurance';
 import type { Submission } from '@/app/lib/types/submissions';
 
@@ -31,9 +32,13 @@ export default function SubmissionsTable({
       try {
         setLoading(true);
         const response = await fetchInsuranceSubmissions();
-        setSubmissions(response.data);
-        setAvailableColumns(response.columns);
-        setError(null);
+        if (Array.isArray(response.data)) {
+          setSubmissions(response.data);
+          setAvailableColumns(response.columns);
+          setError(null);
+        } else {
+          throw new Error('Invalid response format');
+        }
       } catch (err) {
         setError(
           err instanceof Error ? err.message : 'Failed to load submissions'
@@ -47,6 +52,20 @@ export default function SubmissionsTable({
 
     loadSubmissions();
   }, []);
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const sourceIndex = (currentPage - 1) * ITEMS_PER_PAGE + result.source.index;
+    const destinationIndex = (currentPage - 1) * ITEMS_PER_PAGE + result.destination.index;
+
+    setSubmissions((prevSubmissions) => {
+      const newSubmissions = [...prevSubmissions];
+      const [removed] = newSubmissions.splice(sourceIndex, 1);
+      newSubmissions.splice(destinationIndex, 0, removed);
+      return newSubmissions;
+    });
+  };
 
   const filteredData = useMemo(() => {
     if (!submissions) return [];
@@ -149,63 +168,88 @@ export default function SubmissionsTable({
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[var(--color-dim)] dark:border-[var(--color-dark-dim)]">
-              {visibleColumns.map((columnKey) => {
-                const column =
-                  columnConfig[columnKey as keyof typeof columnConfig];
-                if (!column) return null;
-                return (
-                  <th
-                    key={columnKey}
-                    className="px-6 py-4 text-left text-sm font-semibold text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]"
-                  >
-                    <button
-                      className="flex items-center space-x-1 focus:outline-none"
-                      onClick={() =>
-                        column.sortable &&
-                        handleSort(columnKey as keyof Submission)
-                      }
-                    >
-                      <span>{column.label}</span>
-                      {column.sortable && sortConfig.key === columnKey && (
-                        <span className="h-4 w-4">
-                          {sortConfig.direction === 'asc' ? (
-                            <ChevronUpIcon />
-                          ) : (
-                            <ChevronDownIcon />
-                          )}
-                        </span>
-                      )}
-                    </button>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((submission) => (
-              <tr
-                key={submission.id}
-                className="border-b border-[var(--color-dim)] transition-colors hover:bg-[var(--color-background)] dark:border-[var(--color-dark-dim)] dark:hover:bg-[var(--color-dark-background)]"
-              >
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[var(--color-dim)] dark:border-[var(--color-dark-dim)]">
                 {visibleColumns.map((columnKey) => {
-                  const value = submission[columnKey as keyof Submission];
-                  if (value === undefined) return null;
+                  const column =
+                    columnConfig[columnKey as keyof typeof columnConfig];
+                  if (!column) return null;
                   return (
-                    <td
+                    <th
                       key={columnKey}
-                      className="px-6 py-4 text-sm text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]"
+                      className="px-6 py-4 text-left text-sm font-semibold text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]"
                     >
-                      {value}
-                    </td>
+                      <button
+                        className="flex items-center space-x-1 focus:outline-none"
+                        onClick={() =>
+                          column.sortable &&
+                          handleSort(columnKey as keyof Submission)
+                        }
+                      >
+                        <span>{column.label}</span>
+                        {column.sortable && sortConfig.key === columnKey && (
+                          <span className="h-4 w-4">
+                            {sortConfig.direction === 'asc' ? (
+                              <ChevronUpIcon />
+                            ) : (
+                              <ChevronDownIcon />
+                            )}
+                          </span>
+                        )}
+                      </button>
+                    </th>
                   );
                 })}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <Droppable droppableId="submissions">
+              {(provided) => (
+                <tbody
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="relative"
+                >
+                  {paginatedData.map((submission, index) => (
+                    <Draggable
+                      key={submission.id}
+                      draggableId={submission.id.toString()}
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <tr
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={`border-b border-[var(--color-dim)] transition-colors dark:border-[var(--color-dark-dim)] ${
+                            snapshot.isDragging
+                              ? 'bg-[var(--color-background)] dark:bg-[var(--color-dark-background)]'
+                              : 'hover:bg-[var(--color-background)] dark:hover:bg-[var(--color-dark-background)]'
+                          }`}
+                        >
+                          {visibleColumns.map((columnKey) => {
+                            const value = submission[columnKey as keyof Submission];
+                            if (value === undefined) return null;
+                            return (
+                              <td
+                                key={columnKey}
+                                className="px-6 py-4 text-sm text-[var(--color-dark-forground)] dark:text-[var(--color-forground)]"
+                              >
+                                {value}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </tbody>
+              )}
+            </Droppable>
+          </table>
+        </DragDropContext>
       </div>
 
       <div className="flex items-center justify-between border-t border-[var(--color-dim)] px-6 py-4 dark:border-[var(--color-dark-dim)]">
